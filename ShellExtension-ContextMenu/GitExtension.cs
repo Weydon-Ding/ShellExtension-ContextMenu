@@ -37,7 +37,17 @@ namespace ShellExtension_ContextMenu
         /// </returns>
         protected override bool CanShowMenu()
         {
-            //TODO: 如果不是git仓库，不显示选项
+            // 如果不是git仓库，不显示选项
+            foreach (var item in SelectedItemPaths)
+            {
+                string output;
+                GitCommand.ExcuteGitCommand("rev-parse --is-inside-work-tree", item, out output);
+                if (output.Contains("not a git repository"))
+                {
+                    return false;
+                }
+            }
+
             this.UpdateMenu();
             return true;
         }
