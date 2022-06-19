@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ShellExtension_ContextMenu
 {
-    class GitCommand
+    public class GitCommand
     {
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace ShellExtension_ContextMenu
         /// </summary>
         public static void ExcuteGitCommand(string strCommnad, DataReceivedEventHandler call)
         {
-            string strGitPath = System.IO.Path.Combine(GitPath, "git.exe");
+            var strGitPath = System.IO.Path.Combine(GitPath, "git.exe");
             if (string.IsNullOrEmpty(strGitPath))
             {
                 Console.WriteLine(">>>>>strEnvironmentVariable: enviromentVariable is not config!!!!");
