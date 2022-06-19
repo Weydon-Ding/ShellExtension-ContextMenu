@@ -9,6 +9,7 @@ namespace ShellExtension_ContextMenu
 {
     public class GitCommand
     {
+        private static StringBuilder strOutput = null;
 
         /// <summary>
         /// 获取环境git.ext的环境变量路径
@@ -37,27 +38,16 @@ namespace ShellExtension_ContextMenu
         }
 
         /// <summary>
-        /// 
-        /// git工作路径
-        /// </summary>
-        private static string m_strWorkingDir;
-        public static string strWorkingDir
-        {
-            get { return m_strWorkingDir; }
-            set { m_strWorkingDir = value; }
-        }
-
-
-        /// <summary>
         /// 执行git指令
         /// </summary>
-        public static void ExcuteGitCommand(string strCommnad, DataReceivedEventHandler call)
+        public static int ExcuteGitCommand(string strCommnad, string strWorkingDir, out string strOutLines)
         {
             var strGitPath = System.IO.Path.Combine(GitPath, "git.exe");
+
             if (string.IsNullOrEmpty(strGitPath))
             {
-                Console.WriteLine(">>>>>strEnvironmentVariable: enviromentVariable is not config!!!!");
-                return;
+                strOutLines = ">>>>>strEnvironmentVariable: enviromentVariable is not config!!!!";
+                return -1;
             }
 
             Process p = new Process();
@@ -67,14 +57,16 @@ namespace ShellExtension_ContextMenu
             p.StartInfo.UseShellExecute = false;
             p.StartInfo.RedirectStandardOutput = true;
             p.StartInfo.WorkingDirectory = strWorkingDir;
-
-            p.OutputDataReceived += call;
-            p.OutputDataReceived -= OnOutputDataReceived;
+            strOutput = new StringBuilder();
             p.OutputDataReceived += OnOutputDataReceived;
 
             p.Start();
             p.BeginOutputReadLine();
             p.WaitForExit();
+            int exitcode = p.ExitCode;
+            p.Close();
+            strOutLines = strOutput.ToString();
+            return exitcode;
         }
 
         /// <summary>
@@ -84,13 +76,10 @@ namespace ShellExtension_ContextMenu
         /// <param name="e"></param>
         private static void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
         {
-            if (null == e || string.IsNullOrEmpty(e.Data))
+            if (!String.IsNullOrEmpty(e.Data))
             {
-                Console.WriteLine(">>>>>>Git command error!!!!!");
-                return;
+                strOutput.Append(e.Data);
             }
-
-            Console.WriteLine(e.Data);
         }
     }
 }
