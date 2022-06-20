@@ -139,16 +139,100 @@ namespace ShellExtension_ContextMenu
         //菜单动作
         private void Item_Click(object sender, EventArgs e, string arg)
         {
-            string appFile = Path.Combine(rootPath, "AuroraTools.exe");
-            if (!File.Exists(appFile))
+            //string appFile = Path.Combine(rootPath, "AuroraTools.exe");
+            //if (!File.Exists(appFile))
+            //{
+            //    MessageBox.Show(string.Format("找不到程序路径:{0}{1}", Environment.NewLine, appFile), "出错了", MessageBoxButtons.OK);
+            //    return;
+            //}
+            //List<string> paths = SelectedItemPaths.ToList();
+            //paths.Add(arg);
+            //string args = string.Join(" ", paths);
+            //Process.Start(appFile, args);
+            if (arg.CompareTo("clone") == 0)
             {
-                MessageBox.Show(string.Format("找不到程序路径:{0}{1}", Environment.NewLine, appFile), "出错了", MessageBoxButtons.OK);
-                return;
+                //TODO
             }
-            List<string> paths = SelectedItemPaths.ToList();
-            paths.Add(arg);
-            string args = string.Join(" ", paths);
-            Process.Start(appFile, args);
+            else if (arg.CompareTo("revert") == 0)
+            {
+                if (SelectedItemPaths.Count() > 0)
+                {
+                    foreach (var item in SelectedItemPaths)
+                    {
+                        var FilePath = item.Trim();
+                        string WorkingDirectory;
+                        if (Directory.Exists(FilePath)) // 路径是文件夹
+                        {
+                            WorkingDirectory = FilePath;
+                            FilePath = ".";
+                        }
+                        else
+                        {
+                            WorkingDirectory = Path.GetDirectoryName(FilePath);
+                        }
+                        string output;
+                        GitCommand.ExecuteGitCommand("restore " + FilePath, WorkingDirectory, out output);
+                    }
+                }
+                else
+                {
+                    var FilePath = FolderPath.Trim();
+                    string WorkingDirectory;
+                    if (Directory.Exists(FilePath)) // 路径是文件夹
+                    {
+                        WorkingDirectory = FilePath;
+                        FilePath = ".";
+                    }
+                    else
+                    {
+                        WorkingDirectory = Path.GetDirectoryName(FilePath);
+                    }
+                    string output;
+                    GitCommand.ExecuteGitCommand("restore " + FilePath, WorkingDirectory, out output);
+                }
+            }
+            else if (arg.CompareTo("cleanup") == 0)
+            {
+                if (SelectedItemPaths.Count() > 0)
+                {
+                    foreach (var item in SelectedItemPaths)
+                    {
+                        var FilePath = item.Trim();
+                        string WorkingDirectory;
+                        if (Directory.Exists(FilePath)) // 路径是文件夹
+                        {
+                            WorkingDirectory = FilePath;
+                            FilePath = ".";
+                        }
+                        else
+                        {
+                            WorkingDirectory = Path.GetDirectoryName(FilePath);
+                        }
+                        string output;
+                        GitCommand.ExecuteGitCommand("clean -df " + FilePath, WorkingDirectory, out output);
+                    }
+                }
+                else
+                {
+                    var FilePath = FolderPath.Trim();
+                    string WorkingDirectory;
+                    if (Directory.Exists(FilePath)) // 路径是文件夹
+                    {
+                        WorkingDirectory = FilePath;
+                        FilePath = ".";
+                    }
+                    else
+                    {
+                        WorkingDirectory = Path.GetDirectoryName(FilePath);
+                    }
+                    string output;
+                    GitCommand.ExecuteGitCommand("clean -df " + FilePath, WorkingDirectory, out output);
+                }
+            }
+            else if (arg.CompareTo("update") == 0)
+            {
+                //TODO
+            }
         }
 
         //获取当前dll所在路径
