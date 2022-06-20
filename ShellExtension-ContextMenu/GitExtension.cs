@@ -38,13 +38,31 @@ namespace ShellExtension_ContextMenu
         protected override bool CanShowMenu()
         {
             // 如果不是git仓库，不显示选项
-            foreach (var item in SelectedItemPaths)
+            if (!String.IsNullOrEmpty(FolderPath))
             {
                 string output;
-                GitCommand.ExcuteGitCommand("rev-parse --is-inside-work-tree", item, out output);
-                if (output.Contains("not a git repository"))
+                GitCommand.ExecuteGitCommand("rev-parse --is-inside-work-tree", FolderPath, out output);
+                if (!output.Contains("true"))
                 {
                     return false;
+                }
+            }
+            else
+            {
+                foreach (var item in SelectedItemPaths)
+                {
+                    string output;
+                    string curFolder = item;
+                    if (File.Exists(item))
+                    {
+                        // 是文件
+                        curFolder = Path.GetDirectoryName(item);
+                    }
+                    GitCommand.ExecuteGitCommand("rev-parse --is-inside-work-tree", curFolder, out output);
+                    if (!output.Contains("true"))
+                    {
+                        return false;
+                    }
                 }
             }
 
